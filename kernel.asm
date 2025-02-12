@@ -1,24 +1,37 @@
-[BITS 16]   ; Still in real mode (for simplicity)
-[ORG 0x1000] ; Loaded by bootloader at 0x1000
+[BITS 16]   ; We're in real mode (16-bit)
+[ORG 0x7C00] ; Boot sector loads at 0x7C00
 
 start:
-    ; Print "Kernel Loaded!"
-    mov si, kernel_msg
+    cli          ; Disable interrupts
+    mov ax, 0    ; Set data segment
+    mov ds, ax
+    mov es, ax
+
+    ; Print message using BIOS interrupt
+    mov si, message
     call print_string
 
-    ; Halt the CPU
-    hlt
+    hlt          ; Halt CPU
 
-; Print function (same as in bootloader)
+; ================================
+; Print String using BIOS Interrupt 0x10
+; ================================
 print_string:
-    mov ah, 0x0E
+    mov ah, 0x0E  ; BIOS teletype function
 .loop:
-    lodsb
-    cmp al, 0
+    lodsb        ; Load next character from [SI] into AL
+    cmp al, 0    ; Check if null-terminated
     je .done
-    int 0x10
+    int 0x10     ; Print character
     jmp .loop
 .done:
     ret
 
-kernel_msg db "Kernel Loaded!", 0
+; ================================
+; Data Section
+; ================================
+message db "Real Mode Kernel Loaded!", 0
+
+; Boot signature (Mandatory for bootable disk)
+times 510-($-$$) db 0
+dw 0xAA55
