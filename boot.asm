@@ -2,7 +2,7 @@
 [ORG 0x7C00]  ; BIOS loads bootloader at 0x7C00
 
 start:
-    ; Set up stack
+    ; STACK
     cli
     xor ax, ax
     mov ds, ax
