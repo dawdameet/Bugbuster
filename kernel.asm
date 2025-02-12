@@ -1,22 +1,24 @@
-[BITS 16]
-[ORG 0x1000]  ; Kernel loads at 0x1000
+[BITS 16]   ; Still in real mode (for simplicity)
+[ORG 0x1000] ; Loaded by bootloader at 0x1000
 
 start:
+    ; Print "Kernel Loaded!"
+    mov si, kernel_msg
+    call print_string
+
+    ; Halt the CPU
+    hlt
+
+; Print function (same as in bootloader)
+print_string:
     mov ah, 0x0E
-    mov al, 'K'
+.loop:
+    lodsb
+    cmp al, 0
+    je .done
     int 0x10
-    mov al, 'e'
-    int 0x10
-    mov al, 'r'
-    int 0x10
-    mov al, 'n'
-    int 0x10
-    mov al, 'e'
-    int 0x10
-    mov al, 'l'
-    int 0x10
-    mov al, '!'
-    int 0x10
+    jmp .loop
+.done:
+    ret
 
-    jmp $  ; Halt
-
+kernel_msg db "Kernel Loaded!", 0
