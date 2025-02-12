@@ -3,9 +3,11 @@
 
 start:
     cli          ; Disable interrupts
-    mov ax, 0    ; Set data segment
+    xor ax, ax   ; Zero out ax
     mov ds, ax
     mov es, ax
+    mov ss, ax   ; Set up stack segment
+    mov sp, 0x7C00  ; Set up stack pointer
 
     ; Print message using BIOS interrupt
     mov si, message
@@ -20,8 +22,8 @@ print_string:
     mov ah, 0x0E  ; BIOS teletype function
 .loop:
     lodsb        ; Load next character from [SI] into AL
-    cmp al, 0    ; Check if null-terminated
-    je .done
+    test al, al  ; Check if null-terminated
+    jz .done
     int 0x10     ; Print character
     jmp .loop
 .done:
